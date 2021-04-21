@@ -4,7 +4,7 @@ Desarrolle un pack de juegos basado en un video hecho por el youtuber holamundo,
 
 Tecnologías implementadas: React, Bootstrap, CSS, HTML, Javascript.
 
-## *Ejercicio 2: Juego de memoria*
+## *Ejercicio 3: Juego de memoria*
 
 construye un juego que posea n columnas y n filas, el numero total de tarjetas debe ser par y cada tarjeta debe esconder un símbolo o imagen, y debe existir una pareja de estos signos o imágenes, cuando pinche encima debe mostrarme la imagen y luego permitirme elegir otra
 
