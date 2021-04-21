@@ -1,9 +1,17 @@
 import React, { Component } from "react";
 import Cards from "../data/data";
 import Card from "./Card";
+import moment from "moment";
 
 class Game extends Component {
-  state = { cards: Cards, counter: 0, validCards: [], pair: [] };
+  state = {
+    startTime: null,
+    cards: Cards,
+    counter: 0,
+    validCards: [],
+    pair: [],
+    errorCounter: 0,
+  };
 
   ShowCard = (id) => {
     var cards = this.state.cards;
@@ -17,16 +25,23 @@ class Game extends Component {
     this.setState({ pair });
   }
 
+  IncrementErrorCounter() {
+    var errorCounter = this.state.errorCounter;
+    errorCounter = errorCounter + 1;
+    this.setState({ errorCounter });
+  }
+
   CheckPair() {
     console.log("checking pair");
     if (
       this.state.cards[this.state.pair[0] - 1].color ===
       this.state.cards[this.state.pair[1] - 1].color
     ) {
-      console.log("los colores son iguales");
+      window.alert("los colores son iguales");
       this.SaveValidCards(this.state.pair[0], this.state.pair[1]);
     } else {
-      console.log("los colores no son iguales pa, te los escondo mira");
+      window.alert("los colores no son iguales");
+      this.IncrementErrorCounter();
       this.HideCards();
     }
   }
@@ -50,16 +65,63 @@ class Game extends Component {
     this.setState({ cards });
   }
 
-  HandleClick = (id) => {
-    console.log(id);
-    this.ShowCard(id);
-    this.IncrementCounter(id);
-    console.log(this.state.pair);
-    if (this.state.pair.length === 2) {
-      this.CheckPair();
-      this.ResetPair();
+  CalculateTime = () => {
+    var today = new Date();
+    var date =
+      today.getFullYear() +
+      "/" +
+      (today.getMonth() + 1) +
+      "/" +
+      today.getDate();
+    var time =
+      today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+    var dateTime = date + " " + time;
+    return dateTime;
+  };
+
+  SetTime = () => {
+    if (this.state.startTime == null) {
+      var startTime = this.state.startTime;
+      startTime = this.CalculateTime();
+      this.setState({ startTime });
     }
   };
+
+  HandleClick = (id) => {
+    console.log(id);
+    this.SetTime();
+    if (!this.state.pair.includes(id) && !this.state.validCards.includes(id)) {
+      // Si el usuario clickea una carta ya clickeada o ya valida, no hace nada
+      this.ShowCard(id);
+      this.IncrementCounter(id);
+      if (this.state.pair.length === 2) {
+        this.CheckPair();
+        this.ResetPair();
+      }
+    }
+    console.log("validCards: ", this.state.validCards.length);
+    if (this.state.validCards.length == 16) {
+      // Si el juego termina, te muestra el tiempo pasado y los errores
+      var endTime = this.CalculateTime();
+      var elapsedTime = moment
+        .utc(
+          moment(endTime, "DD/MM/YYYY HH:mm:ss").diff(
+            moment(this.state.startTime, "DD/MM/YYYY HH:mm:ss")
+          )
+        )
+        .format("HH:mm:ss");
+      window.alert(
+        "Juego terminado! tiempo transcurrido: " +
+          elapsedTime +
+          "| Errores: " +
+          this.state.errorCounter
+      );
+    }
+  };
+
+  GetClass(id) {
+    return "card grid-item";
+  }
 
   render() {
     return (
@@ -69,6 +131,7 @@ class Game extends Component {
             onClick={this.HandleClick}
             key={card.id}
             card={card}
+            class={this.GetClass}
             color={card.hidden === true ? "black" : card.color}
           />
         ))}

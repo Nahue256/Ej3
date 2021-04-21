@@ -4,7 +4,7 @@ const Card = (props) => {
   return (
     <div
       onClick={() => props.onClick(props.card.id)}
-      className="card grid-item"
+      className={props.class(props.card.id)}
       style={{ background: props.color }}
     >
       <h2>{props.card.id}</h2>
