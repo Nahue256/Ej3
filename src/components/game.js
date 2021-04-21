@@ -1,9 +1,11 @@
 import React, { Component } from "react";
 import Cards from "../data/data";
 import Card from "./Card";
+import moment from "moment";
 
 class Game extends Component {
   state = {
+    startTime: null,
     cards: Cards,
     counter: 0,
     validCards: [],
@@ -63,16 +65,58 @@ class Game extends Component {
     this.setState({ cards });
   }
 
+  CalculateTime = () => {
+    var today = new Date();
+    var date =
+      today.getFullYear() +
+      "/" +
+      (today.getMonth() + 1) +
+      "/" +
+      today.getDate();
+    var time =
+      today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+    var dateTime = date + " " + time;
+    return dateTime;
+  };
+
+  SetTime = () => {
+    if (this.state.startTime == null) {
+      var startTime = this.state.startTime;
+      startTime = this.CalculateTime();
+      this.setState({ startTime });
+    }
+  };
+
   HandleClick = (id) => {
     console.log(id);
-    this.ShowCard(id);
-    this.IncrementCounter(id);
-    console.log(this.state.pair);
-    if (this.state.pair.length === 2) {
-      this.CheckPair();
-      this.ResetPair();
+    this.SetTime();
+    if (!this.state.pair.includes(id) && !this.state.validCards.includes(id)) {
+      // Si el usuario clickea una carta ya clickeada o ya valida, no hace nada
+      this.ShowCard(id);
+      this.IncrementCounter(id);
+      if (this.state.pair.length === 2) {
+        this.CheckPair();
+        this.ResetPair();
+      }
     }
-    console.log(this.state.errorCounter);
+    console.log("validCards: ", this.state.validCards.length);
+    if (this.state.validCards.length == 16) {
+      // Si el juego termina, te muestra el tiempo pasado y los errores
+      var endTime = this.CalculateTime();
+      var elapsedTime = moment
+        .utc(
+          moment(endTime, "DD/MM/YYYY HH:mm:ss").diff(
+            moment(this.state.startTime, "DD/MM/YYYY HH:mm:ss")
+          )
+        )
+        .format("HH:mm:ss");
+      window.alert(
+        "Juego terminado! tiempo transcurrido: " +
+          elapsedTime +
+          "| Errores: " +
+          this.state.errorCounter
+      );
+    }
   };
 
   GetClass(id) {
